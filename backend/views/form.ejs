@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate QR Code</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <header class="bg-blue-500 text-white py-4">
+    <div class="container mx-auto text-center">
+      <h1 class="text-3xl font-semibold">Generate QR Code</h1>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-6">
+
+    <section class="bg-white shadow-lg rounded-lg p-6 max-w-md mx-auto">
+      <h2 class="text-xl font-semibold text-center mb-6">Generate your QR Code</h2>
+      <form action="/generate" method="POST" class="space-y-4">
+        <button type="submit" class="w-full bg-green-500 text-white py-3 rounded-lg shadow-lg hover:bg-green-600 transition duration-300">Generate QR Code</button>
+      </form>
+    </section>
+
+  </main>
+
+
+</body>
+</html>
