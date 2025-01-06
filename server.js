@@ -10,12 +10,12 @@ dotenv.config();
 const app = express();
 
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 const db = mongoose.connection;
-db.once('open', () => console.log('Connected to MongoDB'));
-
-
+db.once('open', () => console.log('Connected to MongoDB Atlas'));
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
