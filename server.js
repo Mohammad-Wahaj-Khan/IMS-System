@@ -26,42 +26,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const Item = require('./models/Item');
 app.get('/', async (req, res) => {
-  try {
-    const items = await Item.find();
-    res.render('dashboard', { items });
-  } catch (err) {
-    console.error('Error fetching items:', err);
-    res.status(500).send('Internal Server Error');
-  }
+  const items = await Item.find();
+  res.render('dashboard', { items });
 });
-
-
 
 app.get('/generate', (req, res) => {
   res.render('form');
 });
 
 app.post('/generate', async (req, res) => {
-  try {
-    const newItem = new Item({
-      status: 'unassigned',
-      date: new Date(),
-    });
-    const savedItem = await newItem.save();
-
-    const formUrl = `${req.protocol}://${req.get('host')}/form/${savedItem._id}`;
-    const qrCodeData = await QRCode.toDataURL(formUrl); // Generate QR code as a base64 string
-
-    savedItem.qrCodeData = qrCodeData; // Save base64 string in DB if needed
-    await savedItem.save();
-
-    res.render('dashboard', { qrCodeData }); // Send the QR code data to the frontend
-  } catch (err) {
-    console.error('Error generating QR code:', err);
-    res.status(500).send('Error generating the QR code');
-  }
-});
-
+  const newItem = new Item({
+    status: 'unassigned',
+    date: new Date(),
+  });
+  const savedItem = await newItem.save();
 
 
   const formUrl = `${req.protocol}://${req.get('host')}/form/${savedItem._id}`;
