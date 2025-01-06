@@ -8,17 +8,15 @@ const path = require('path');
 const app = express();
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGO_URL);
 const db = mongoose.connection;
 db.once('open', () => console.log('Connected to MongoDB'));
+
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, './public/qr_codes')));
 
 // Models
 const Item = require('./models/Item');
