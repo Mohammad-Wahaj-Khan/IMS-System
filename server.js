@@ -27,11 +27,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 const Item = require('./models/Item');
 
 app.get('/', async (req, res) => {
-  const items = await Item.find();
-  const qrCodeData = await QRCode.toDataURL(formUrl);
-  res.render('dashboard', { qrCodeData });
-
+  try {
+    const items = await Item.find();
+    res.render('dashboard', { items });
+  } catch (err) {
+    console.error('Error fetching items:', err);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 app.get('/generate', (req, res) => {
   res.render('form');
