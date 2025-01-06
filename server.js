@@ -28,7 +28,9 @@ const Item = require('./models/Item');
 
 app.get('/', async (req, res) => {
   const items = await Item.find();
-  res.render('dashboard', { items });
+  const qrCodeData = await QRCode.toDataURL(formUrl);
+  res.render('dashboard', { qrCodeData });
+
 });
 
 app.get('/generate', (req, res) => {
