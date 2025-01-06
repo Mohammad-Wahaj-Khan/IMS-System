@@ -9,17 +9,19 @@ dotenv.config();
 
 const app = express();
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 const db = mongoose.connection;
-db.once('open', () => console.log('Connected to MongoDB'));
+db.once('open', () => console.log('Connected to MongoDB Atlas'));
 
 
-
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, './public/qr_codes')));
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 const Item = require('./models/Item');
 
