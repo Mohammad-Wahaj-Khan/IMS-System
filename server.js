@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 
-mongoose.connect('mongodb+srv://ims:ims@ims.ssnyi.mongodb.net/?retryWrites=true&w=majority&appName=IMS/ims', {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
