@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 
 
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect('mongodb+srv://ims:ims@ims.ssnyi.mongodb.net/?retryWrites=true&w=majority&appName=IMS/ims', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -25,7 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 const Item = require('./models/Item');
-
 app.get('/', async (req, res) => {
   try {
     const items = await Item.find();
@@ -35,6 +34,7 @@ app.get('/', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 
 app.get('/generate', (req, res) => {
