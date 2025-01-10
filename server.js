@@ -9,7 +9,6 @@ dotenv.config();
 
 const app = express();
 
-
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -27,63 +26,36 @@ app.use(express.static(path.join(__dirname, 'public')));
 const Item = require('./models/Item');
 
 app.get('/', async (req, res) => {
-  try {
-    const items = await Item.find();
-    res.render('dashboard', { items });
-  } catch (err) {
-    console.error('Error fetching items:', err);
-    res.status(500).send('Internal Server Error');
-  }
+  const items = await Item.find();
+  res.render('dashboard', { items });
 });
 
-
 app.get('/generate', (req, res) => {
-  res.render('form');
+  res.render('dashboard');
 });
 
 app.post('/generate', async (req, res) => {
-  try {
-    const newItem = new Item({
-      status: 'unassigned',
-      date: new Date(),
-    });
-    const savedItem = await newItem.save();
+  const newItem = new Item({
+    status: 'unassigned',
+    date: new Date(),
+  });
+  const savedItem = await newItem.save();
 
-    const formUrl = `${req.protocol}://${req.get('host')}/form/${savedItem._id}`;
-    const qrCodeData = await QRCode.toDataURL(formUrl); // Generate QR code as a base64 string
-
-    savedItem.qrCodeData = qrCodeData; // Save base64 string in DB if needed
-    await savedItem.save();
-
-    res.render('dashboard', { qrCodeData }); // Send the QR code data to the frontend
-  } catch (err) {
-    console.error('Error generating QR code:', err);
-    res.status(500).send('Error generating the QR code');
-  }
-});
-
-
-
+  // Generate QR Code
   const formUrl = `${req.protocol}://${req.get('host')}/form/${savedItem._id}`;
-  const qrPath = path.join('/tmp', `item_${savedItem._id}.png`);
+  const qrPath = path.join(__dirname, 'public/qr_codes', `item_${savedItem._id}.png`);
   await QRCode.toFile(qrPath, formUrl);
 
-
-  savedItem.qrCodePath = `/tmp/item_${savedItem._id}.png`;
+  // Update item with QR code path
+  savedItem.qrCodePath = `/qr_codes/item_${savedItem._id}.png`;
   await savedItem.save();
-  console.log(qrPath)
-  
-   res.download(qrPath, `item_${savedItem._id}.png`, (err) => {
-        if (err) {
-          console.error('Error sending QR code file:', err);
-          res.status(500).send('Error generating the QR code');
-        }
-     else{
-       res.redirect('/');
-     }
-      });
 
-  // res.redirect('/');
+  res.download(qrPath, `item_${savedItem._id}.png`, (err) => {
+    if (err) {
+      console.error('Error sending QR code file:', err);
+      res.status(500).send('Error generating the QR code');
+    }
+  });
 });
 
 
@@ -178,4 +150,4 @@ app.get('/user/:name', async (req, res) => {
 
 
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(8080, () => console.log('Server running on http://localhost:8080'));

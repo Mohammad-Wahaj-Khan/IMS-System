@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User: <%= name %></title>
-  <link rel="icon" href="../public/logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -33,7 +32,6 @@
               <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Type</th>
               <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Status</th>
               <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Date</th>
-              <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">QR Code</th>
               <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Actions</th>
             </tr>
           </thead>
@@ -44,15 +42,10 @@
                 <td class="py-2 px-4 border border-gray-300"><%= item.team %></td>
                 <td class="py-2 px-4 border border-gray-300"><%= item.type %></td>
                 <td class="py-2 px-4 border border-gray-300"><%= item.status %></td>
-                <td class="py-2 px-4 border border-gray-300"><%= item.date %></td>
+                <td class="py-2 px-4"><%= new Date(item.date).toLocaleString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
                 <td class="py-2 px-4 border border-gray-300">
-                  <% if (item.qrCodePath) { %>
-                    <img src="<%= item.qrCodePath %>" alt="QR Code" class="w-20 h-auto rounded-lg">
-                  <% } %>
-                </td>
-                <td class="py-2 px-4 border border-gray-300">
-                  <a href="/update/<%= item._id %>/faulty" class="text-red-500 hover:text-red-700">Mark Faulty</a> |
-                  <a href="/form/<%= item._id %>" class="text-blue-500 hover:text-blue-700">Edit</a> |
+                  <a href="/form/<%= item._id %>" class="text-blue-500 hover:text-blue-700">Edit</a>
+                  <a href="/update/<%= item._id %>/faulty" class="text-red-500 hover:text-red-700">Mark Faulty</a>
                   <a href="/update/<%= item._id %>/unassign" class="text-yellow-500 hover:text-yellow-700">Unassign</a>
                 </td>
               </tr>
