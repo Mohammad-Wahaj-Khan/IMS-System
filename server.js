@@ -24,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 const Item = require('./models/Item');
+
 app.get('/', async (req, res) => {
   const items = await Item.find();
   res.render('dashboard', { items });
@@ -39,9 +40,14 @@ app.post('/generate', async (req, res) => {
     date: new Date(),
   });
   const savedItem = await newItem.save();
+
   // Generate QR Code
   const formUrl = `${req.protocol}://${req.get('host')}/form/${savedItem._id}`;
+  const qrPath = path.join(__dirname, 'public/qr_codes', `item_${savedItem._id}.png`);
+  await QRCode.toFile(qrPath, formUrl);
 
+  // Update item with QR code path
+  savedItem.qrCodePath = `/qr_codes/item_${savedItem._id}.png`;
   await savedItem.save();
 
   res.download(qrPath, `item_${savedItem._id}.png`, (err) => {
@@ -144,4 +150,4 @@ app.get('/user/:name', async (req, res) => {
 
 
 
-app.listen(8080, () => console.log('Server running on http://localhost:8080'));
+app.listen(5000, () => console.log('Server running on http://localhost:5000'));
