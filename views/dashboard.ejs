@@ -37,6 +37,7 @@
       <table class="min-w-full table-auto border-collapse border border-gray-300">
         <thead>
           <tr class="bg-gray-200">
+            <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">#</th>
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">ID</th>
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Item ID</th>
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Name</th>
@@ -48,8 +49,9 @@
           </tr>
         </thead>
         <tbody id="itemsTableBody">
-          <% items.forEach(item => { %>
+          <% items.forEach((item, index) => { %>
             <tr class="hover:bg-gray-100">
+              <td class="py-2 px-4 border border-gray-300"><%= index + 1 %></td>
               <td class="py-2 px-4 border border-gray-300"><%= item._id %></td>
               <td class="py-2 px-4 border border-gray-300"><%= item.itemId %></td>
               <td class="py-2 px-4 border border-gray-300"><%= item.name %></td>
@@ -113,14 +115,13 @@
         
         const items = await response.json();
 
-        // Clear the table body before adding new rows
         itemsTableBody.innerHTML = '';
 
-        // Add rows dynamically based on filtered data
-        items.forEach(item => {
+        items.forEach((item, index) => {
           const row = document.createElement('tr');
           row.classList.add('hover:bg-gray-100');
           row.innerHTML = `
+            <td class="py-2 px-4 border border-gray-300">${index + 1}</td>
             <td class="py-2 px-4 border border-gray-300">${item._id}</td>
             <td class="py-2 px-4 border border-gray-300">${item.itemId}</td>
             <td class="py-2 px-4 border border-gray-300">${item.name}</td>
