@@ -21,7 +21,16 @@
         <button type="submit" id="generateButton" class="w-full bg-green-500 text-white py-3 rounded-lg shadow-lg hover:bg-green-600 transition duration-300">Generate QR Code</button>
       </form>
     </div>
-
+    <div class="mb-6">
+      <label for="nameFilter" class="block text-gray-700 font-semibold mb-2">Filter by Name:</label>
+      <select id="nameFilter" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-4">
+        <option value="">All</option>
+        <% const names = [...new Set(items.map(item => item.name))]; %>
+        <% names.forEach(name => { %>
+          <option value="<%= name %>"><%= name %></option>
+        <% }); %>
+      </select>
+    </div>
     <section class="bg-white shadow-lg rounded-lg p-6 mb-8 overflow-x-auto">
       <table class="min-w-full table-auto border-collapse border border-gray-300">
         <thead>
@@ -33,11 +42,10 @@
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Type</th>
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Status</th>
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Date</th>
-            <!-- <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">QR Code</th> -->
             <th class="py-2 px-4 text-left font-semibold text-gray-700 border border-gray-300">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="itemsTableBody">
           <% items.forEach(item => { %>
             <tr class="hover:bg-gray-100">
               <td class="py-2 px-4 border border-gray-300"><%= item._id %></td>
@@ -54,14 +62,9 @@
                     day: 'numeric', 
                     hour: '2-digit', 
                     minute: '2-digit',
-                    timeZone: 'Asia/Karachi' // Specify Pakistan's timezone here
+                    timeZone: 'Asia/Karachi' 
                 }) %>
               </td>              
-              <!-- <td class="py-2 px-4 border border-gray-300">
-                <% if (item.qrCodePath) { %>
-                  <img src="<%= item.qrCodePath %>" width="100" class="rounded-lg">
-                <% } %>
-              </td> -->
               <td class="py-2 px-4 border border-gray-300">
                 <a href="/form/<%= item._id %>" class="text-blue-500 hover:text-blue-700">Edit</a> |
                 <a href="/update/<%= item._id %>/faulty" class="text-red-500 hover:text-red-700">Faulty</a> |
@@ -72,7 +75,6 @@
         </tbody>
       </table>
     </section>
-
     <section class="bg-white shadow-lg rounded-lg p-6 overflow-x-auto">
       <h2 class="text-xl font-semibold mb-4">Teams</h2>
       <table class="min-w-full table-auto">
@@ -91,42 +93,59 @@
         </tbody>
       </table>
     </section>
-
   </main>
-  <script>
-    document.getElementById('generateForm').addEventListener('submit', (event) => {
-      event.preventDefault(); // Prevent form default submission
-      const button = document.getElementById('generateButton');
-      button.disabled = true; // Disable button to prevent multiple clicks
-      button.innerText = 'Generating...';
 
-      fetch('/generate', { method: 'POST' })
-        .then((response) => {
-          if (response.ok) {
-            return response.blob(); // Handle file download if necessary
-          } else {
-            throw new Error('Error generating QR code');
-          }
-        })
-        .then((blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = 'qr_code.png';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch((err) => console.error(err))
-        .finally(() => {
-          button.disabled = false; // Re-enable button
-          button.innerText = 'Generate QR Code';
+  <script>
+    const nameFilter = document.getElementById('nameFilter');
+    const itemsTableBody = document.getElementById('itemsTableBody');
+
+    nameFilter.addEventListener('change', async (event) => {
+      const selectedName = event.target.value;
+      const url = selectedName ? `/filter?name=${encodeURIComponent(selectedName)}` : '/filter?name=';
+      
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch filtered items');
+        }
+        
+        const items = await response.json();
+
+        itemsTableBody.innerHTML = '';
+
+        items.forEach(item => {
+          const row = document.createElement('tr');
+          row.classList.add('hover:bg-gray-100');
+          row.innerHTML = `
+            <td class="py-2 px-4 border border-gray-300">${item._id}</td>
+            <td class="py-2 px-4 border border-gray-300">${item.itemId}</td>
+            <td class="py-2 px-4 border border-gray-300">${item.name}</td>
+            <td class="py-2 px-4 border border-gray-300">${item.team}</td>
+            <td class="py-2 px-4 border border-gray-300">${item.type}</td>
+            <td class="py-2 px-4 border border-gray-300">${item.status}</td>
+            <td class="py-2 px-4 border border-gray-300">
+              ${new Date(item.date).toLocaleString('en-US', { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                timeZone: 'Asia/Karachi' 
+              })}
+            </td>
+            <td class="py-2 px-4 border border-gray-300">
+              <a href="/form/${item._id}" class="text-blue-500 hover:text-blue-700">Edit</a> |
+              <a href="/update/${item._id}/faulty" class="text-red-500 hover:text-red-700">Faulty</a> |
+              <a href="/update/${item._id}/unassign" class="text-yellow-500 hover:text-yellow-700">Unassign</a>
+            </td>
+          `;
+          itemsTableBody.appendChild(row);
         });
+      } catch (error) {
+        console.error('Error fetching filtered items:', error);
+      }
     });
   </script>
-
-  
-
 </body>
 </html>

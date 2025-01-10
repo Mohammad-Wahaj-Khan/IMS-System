@@ -29,6 +29,17 @@ app.get('/', async (req, res) => {
   const items = await Item.find();
   res.render('dashboard', { items });
 });
+app.get('/filter', async (req, res) => {
+  try {
+    const { name } = req.query;
+    const items = await Item.find();
+    const filteredItems = name ? items.filter(item => item.name === name) : items;
+    res.json(filteredItems);
+  } catch (error) {
+    console.error('Error fetching items:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.get('/generate', (req, res) => {
   res.render('dashboard');
